@@ -4,8 +4,8 @@ using namespace std;
 class Bus
 {
 protected:
-	char seatID[10][10]; // Number of Seats In One Bus
-	double cost;		 // Cost of Bus
+	// char seatID[10][10]; // Number of Seats In One Bus
+	// double cost;		 // Cost of Bus
 	string strBusID;	 // String Bus ID
 	static int bcounter; // Variable to Initialize IDs
 
@@ -15,9 +15,14 @@ public:
 		strBusID = to_string(++bcounter);
 		strBusID = 'B' + strBusID;
 	}
+
+	string getBusID()
+	{
+		return strBusID;
+	}
 };
 
-class Passenger : protected Bus
+class Passenger
 {
 private:
 	string strPassengerID; // String Passenger ID
@@ -30,9 +35,14 @@ public:
 		strPassengerID = 'P' + strPassengerID;
 	}
 
-	void ConnectPassToBus(int client, int busn)
+	string getPassengerID()
 	{
+		return strPassengerID;
 	}
+
+	// void ConnectPassToBus(int client, int busn)
+	// {
+	// }
 };
 
 int Passenger::pcounter = 0;
@@ -42,7 +52,19 @@ int main()
 {
 	Bus buses[10];
 
-	Passenger passenger[5];
+	for (int i = 0; i < 10; i++)
+	{
+		cout << buses[i].getBusID() << " ";
+	}
+
+	cout << endl;
+
+	Passenger passenger[10];
+
+	for (int i = 0; i < 10; i++)
+	{
+		cout << passenger[i].getPassengerID() << " ";
+	}
 
 	return 0;
 }
