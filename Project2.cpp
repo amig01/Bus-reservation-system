@@ -1,61 +1,48 @@
 #include <iostream>
 using namespace std;
 
-int globalID;
-
 class Bus
 {
 protected:
-	char seatID[10][10];
-	double cost;
-	int busID;
+	char seatID[10][10]; // Number of Seats In One Bus
+	double cost;		 // Cost of Bus
+	string strBusID;	 // String Bus ID
+	static int bcounter; // Variable to Initialize IDs
 
 public:
 	Bus()
 	{
-		busID = ++globalID;
-	}
-
-	int getBusID()
-	{
-		return busID;
+		strBusID = to_string(++bcounter);
+		strBusID = 'B' + strBusID;
 	}
 };
 
 class Passenger : protected Bus
 {
 private:
-	int passengerID;
+	string strPassengerID; // String Passenger ID
+	static int pcounter;   // Variable to Initialize IDs
 
 public:
 	Passenger()
 	{
-		passengerID = ++globalID;
+		strPassengerID = to_string(++pcounter);
+		strPassengerID = 'P' + strPassengerID;
 	}
 
-	int getPassengerID()
+	void ConnectPassToBus(int client, int busn)
 	{
-		return passengerID;
 	}
 };
+
+int Passenger::pcounter = 0;
+int Bus::bcounter = 0;
 
 int main()
 {
 	Bus buses[10];
 
-	for (int i = 0; i < 10; i++)
-	{
-		cout << buses[i].getBusID() << endl;
-	}
-
-	globalID = 0;
-
-	Passenger passenger[20];
-
-	for (int i = 0; i < 10; i++)
-	{
-		cout << passenger[i].getPassengerID() << endl;
-	}
+	Passenger passenger[5];
 
 	return 0;
 }
