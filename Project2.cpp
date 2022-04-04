@@ -4,45 +4,49 @@ using namespace std;
 class Bus
 {
 protected:
-	// char seatID[10][10]; // Number of Seats In One Bus
-	// double cost;		 // Cost of Bus
 	string strBusID;	 // String Bus ID
 	static int bcounter; // Variable to Initialize IDs
 
 public:
 	Bus()
 	{
-		strBusID = to_string(++bcounter);
-		strBusID = 'B' + strBusID;
+		strBusID = 'B' + to_string(++bcounter);
 	}
 
-	string getBusID()
-	{
-		return strBusID;
-	}
+	string getBusID() { return strBusID; }
 };
 
 class Passenger
 {
-private:
+protected:
 	string strPassengerID; // String Passenger ID
 	static int pcounter;   // Variable to Initialize IDs
 
 public:
 	Passenger()
 	{
-		strPassengerID = to_string(++pcounter);
-		strPassengerID = 'P' + strPassengerID;
+		strPassengerID = 'P' + to_string(++pcounter);
 	}
 
-	string getPassengerID()
+	string getPassengerID() { return strPassengerID; }
+};
+
+class Seat
+{
+protected:
+	string seatID[10][6];
+
+public:
+	Seat()
 	{
-		return strPassengerID;
+		for (int r = 1; r < 10; r++)
+		{
+			for (int c = 1; c <= 5; c++)
+			{
+				seatID[r][c] = 'S' + to_string(r) + to_string(c);
+			}
+		}
 	}
-
-	// void ConnectPassToBus(int client, int busn)
-	// {
-	// }
 };
 
 int Passenger::pcounter = 0;
@@ -50,7 +54,7 @@ int Bus::bcounter = 0;
 
 int main()
 {
-	Bus buses[10];
+	/*Bus buses[10];
 
 	for (int i = 0; i < 10; i++)
 	{
@@ -64,7 +68,9 @@ int main()
 	for (int i = 0; i < 10; i++)
 	{
 		cout << passenger[i].getPassengerID() << " ";
-	}
+	}*/
+
+	Seat seats;
 
 	return 0;
 }
