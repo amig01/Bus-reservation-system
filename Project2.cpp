@@ -5,10 +5,10 @@
 
 using namespace std;
 
-constexpr int BUSES = 10;
-constexpr int SEATS = 20;
-constexpr int PASSENGERS = 200;
-constexpr int CITIES = 10;
+const int BUSES = 10;
+const int SEATS = 20;
+const int PASSENGERS = 200;
+const int CITIES = 10;
 
 const string cities[CITIES] = { "KHIVA", "BUKHARA", "SAMARKAND", "NUKUS", "JIZAKH", "KASHKADARYA", "SURKHANDARYA", "ALAT", "VOBKENT", "GULISTAN" };
 
@@ -22,7 +22,7 @@ int inputUpTo(int max_value)
 {
 	int input;
 	cin >> input;
-	while (cin.fail() || input > max_value)
+	while (cin.fail() || input > max_value || input < 0)
 	{
 		cout << "PLEASE ENTER VALID VALUE: ";
 		cin.clear();
@@ -35,11 +35,11 @@ int inputUpTo(int max_value)
 class Seat
 {
 private:
-	const string m_seatID;	// String Seats ID
-	bool m_business;	// Status of Being Ordered
-	static int scounter;	// Variable to Initialize Seats IDs
+	const string m_seatID;			// String Seats ID
+	bool m_business;				// Status of Being Ordered
+	static int scounter;			// Variable to Initialize Seats IDs
 public:
-	Seat() : m_business(false), m_seatID('S' + (scounter < 9 ? to_string(0) : "") + to_string(++(scounter %= 20))) { }
+	Seat() : m_business(false), m_seatID('S' + (scounter < 9 ? to_string(0) : "") + to_string(++(scounter %= 20))) {  }
 	const string& getSeatID() const { return m_seatID; }
 	void setBusiness(bool business) { m_business = business; }
 	const bool getBusiness() const { return m_business; }
@@ -49,14 +49,14 @@ int Seat::scounter;
 class Bus
 {
 protected:
+	const string m_busID;			// String Bus ID
 	const string m_departure_city;	// String Departure City
 	const string m_arrival_city;	// String Arrival City
-	const string m_busID;	// String Bus ID
-	Seat* m_bus_seats;	// Array of Seats in Bus
-	const int m_price;	// Integral Seat Price
-	static int bcounter;	// Variable to Initialize Bus IDs
+	Seat* m_bus_seats;				// Array of Seats in Bus
+	const int m_price;				// Integral Seat Price
+	static int bcounter;			// Variable to Initialize Bus IDs
 public:
-	Bus() : m_bus_seats(new Seat[SEATS]), m_departure_city("TASHKENT"), m_arrival_city(cities[rand() % CITIES]), m_busID('B' + (bcounter < 9 ? to_string(0) : "") + to_string(++bcounter)), m_price(rand() % 51 + 50) { }
+	Bus() : m_busID('B' + (bcounter < 9 ? to_string(0) : "") + to_string(++bcounter)), m_departure_city("TASHKENT"), m_arrival_city(cities[rand() % CITIES]), m_bus_seats(new Seat[SEATS]), m_price(rand() % 51 + 50) {  }
 	~Bus() { delete[] m_bus_seats; }
 	const string& getDepartureCity() const { return m_departure_city; }
 	const string& getArrivalCity() const { return m_arrival_city; }
@@ -95,25 +95,26 @@ void showBusesTable(Bus buses[])
 class Passenger
 {
 private:
-	const string m_passengerID;	// String Passenger ID
-	string m_ticketID;	// String Passenger Ticket ID
-	static int pcounter;	// Variable to Initialize Passenger IDs
+	const string m_passengerID;		// String Passenger ID
+	string m_ticketID;				// String Passenger Ticket ID
+	static int pcounter;			// Variable to Initialize Passenger IDs
 public:
 	Passenger() : m_passengerID('P' + (pcounter < 9 ? to_string(0) : "") + to_string(++pcounter)) { }
 	const string& getPassengerID() const { return m_passengerID; }
 	const string& getTicketID() const { return m_ticketID; }
 	void makeOrder(Bus buses[]);
 	void currentOrder(Bus buses[]);
-	//void modifyOrder(Bus buses[]);
-	//void cancelOrder(const Bus& bus, Seat& seat) { m_passenger_seatID.clear(), seat.setSeatBusiness(false); }
-	//friend void showOrders(Passenger passengers[]);
-	//friend void searchOrder() {}
+	void modifyOrder(Bus buses[]);
+	void cancelOrder(Bus buses[]);
+	bool orderIsEmpty() { return m_ticketID.empty(); }
+	//friend void searchOrder(Passenger passengers[], Bus buses[]);
 	//friend void makePayment() {}
 };
 int Passenger::pcounter;
 
 void Passenger::makeOrder(Bus buses[])
 {
+	showBusesTable(buses);
 	cout << "ENTER BUS ID: ";
 	int bus_index = inputUpTo(BUSES);
 	buses[bus_index - 1].showSeatsTable();
@@ -131,18 +132,65 @@ void Passenger::makeOrder(Bus buses[])
 
 void Passenger::currentOrder(Bus buses[])
 {
-	int bus_index = m_ticketID[1] - '0' + m_ticketID[2] - '0';
 	cout << "CURRENT ORDER" << endl;
 	cout << "PASSENGER ID: " << m_passengerID << endl;
-	cout << "TICKET ID: " << m_ticketID << endl;
-	cout << "DEPARTURE: " << buses[bus_index - 1].getDepartureCity() << endl;
-	cout << "ARRIVAL: " << buses[bus_index - 1].getArrivalCity() << endl;
-	cout << "PRICE: " << buses[bus_index - 1].getPrice() << '$' << endl;
+	if (!orderIsEmpty())
+	{
+		cout << "TICKET ID: " << m_ticketID << endl;
+		int bus_index = m_ticketID[1] - '0' + m_ticketID[2] - '0';
+		cout << "DEPARTURE: " << buses[bus_index - 1].getDepartureCity() << endl;
+		cout << "ARRIVAL: " << buses[bus_index - 1].getArrivalCity() << endl;
+		cout << "PRICE: " << buses[bus_index - 1].getPrice() << '$' << endl;
+	}
 }
+
+void Passenger::modifyOrder(Bus buses[])
+{
+	cout << "MODIFY CURRENT ORDER?" << endl;
+	cout << "1. YES\n0. NO" << endl;
+	cout << "SELECT THE OPTION: ";
+	if (inputUpTo(1))
+	{
+		int bus_index = m_ticketID[1] - '0' + m_ticketID[2] - '0';
+		int seat_index = m_ticketID[4] - '0' + m_ticketID[5] - '0';
+		buses[bus_index - 1].getSeat(seat_index - 1).setBusiness(false);
+		m_ticketID.clear();
+		makeOrder(buses);
+	}
+	cout << "THE ORDER WAS MODIFIED" << endl;
+}
+
+void Passenger::cancelOrder(Bus buses[])
+{
+	cout << "CANCEL CURRENT ORDER?" << endl;
+	cout << "1. YES\n0. NO" << endl;
+	cout << "SELECT THE OPTION: ";
+	if (inputUpTo(1))
+	{
+		int bus_index = m_ticketID[1] - '0' + m_ticketID[2] - '0';
+		int seat_index = m_ticketID[4] - '0' + m_ticketID[5] - '0';
+		buses[bus_index - 1].getSeat(seat_index - 1).setBusiness(false);
+		m_ticketID.clear();
+	}
+	cout << "THE ORDER WAS CANCELLED" << endl;
+}
+
+void showOrders(Passenger passengers[], Bus buses[])
+{
+	for (int i = 0; !passengers[i].orderIsEmpty(); i++, putEnters(2))
+		passengers[i].currentOrder(buses);
+}
+
+/*void searchOrder(Passenger passengers[], Bus buses[])
+{
+	cout << "WHAT TO SEARCH?" << endl;
+	cout << "1. BUS\n2. SEAT\n3. PASSENGER" << endl;
+	cout << "SELECT THE OPTION: ";
+}*/
 
 void menu()
 {
-	putEnters();
+	putEnters(3);
 	cout << "**************************" << endl;
 	cout << "1. MAKE NEW ORDER\n2. MODIFY ORDER\n3. CANCEL ORDER\n4. SHOW LIST OF ORDERS\n5. SEARCH FOR ORDER\n6. MAKE PAYMENT\n7. EXIT" << endl;
 	cout << "**************************" << endl;
@@ -163,8 +211,8 @@ start:
 	{
 	case MAKE:
 		putEnters();
-		if (passengers[currentPassenger].getTicketID() == "") currentPassenger++;
-		showBusesTable(buses);
+		if (passengers[currentPassenger].getTicketID() != "")
+			currentPassenger++;
 		passengers[currentPassenger].makeOrder(buses);
 		putEnters();
 		break;
@@ -173,15 +221,34 @@ start:
 		putEnters();
 		passengers[currentPassenger].currentOrder(buses);
 		putEnters();
+		if (!passengers[currentPassenger].orderIsEmpty())
+			passengers[currentPassenger].modifyOrder(buses);
+		else
+			cout << "THE ORDER IS EMPTY" << endl;
+		putEnters();
 		break;
 
 	case CANCEL:
+		putEnters();
+		passengers[currentPassenger].currentOrder(buses);
+		putEnters();
+		if (!passengers[currentPassenger].orderIsEmpty())
+			passengers[currentPassenger].cancelOrder(buses);
+		else
+			cout << "THE ORDER IS EMPTY" << endl;
+		putEnters();
 		break;
 
 	case SHOW:
+		putEnters(2);
+		showOrders(passengers, buses);
+		putEnters(2);
 		break;
 
 	case SEARCH:
+		putEnters(2);
+		//searchOrder(passengers, buses);
+		putEnters(2);
 		break;
 
 	case PAY:
